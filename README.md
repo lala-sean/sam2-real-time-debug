@@ -1,68 +1,31 @@
-# segment-anything-2 real-time
-Run Segment Anything Model 2 on a **live video stream**
+# SAM2 Real-Time Segmentation
 
-## News
-- 20/08/2024 : Fix management of ```non_cond_frame_outputs``` for better performance and add bbox prompt
+This project is based on the source code from the repository [segment-anything-2-real-time](https://github.com/Gy920/segment-anything-2-real-time.git). All checkpoints and environment setup instructions are followed as per the original repository.
 
-## Demos
-<div align=center>
-<p align="center">
-<img src="./assets/blackswan.gif" width="880">
-</p>
+## Overview
 
-</div>
+In this project, we test the `SAM2ImagePredictor` and `SAM2VideoPredictor` respectively.
 
+### Experiments
 
+#### SAM2ImagePredictor
 
-## Getting Started
+To test the `SAM2ImagePredictor`, please run the script `sam2_img_debug.py`. The output files will be saved in the `display` directory. Note that the `SAM2ImagePredictor` cannot track the prompts given in the first image.
 
-### Installation
+#### SAM2VideoPredictor
 
-```bash
-pip install -e .
-```
-### Download Checkpoint
+To test the `SAM2VideoPredictor`, please run the script `sam2_video_debug.py`. The output files will be saved in the `display_video` directory. The `SAM2VideoPredictor` can effectively track the point annotations given in the first frame.
 
-Then, we need to download a model checkpoint.
+## Usage
 
-```bash
-cd checkpoints
-./download_ckpts.sh
-```
+1. Clone the repository and set up the environment as per the instructions in the [segment-anything-2-real-time](https://github.com/Gy920/segment-anything-2-real-time.git) repository.
+2. Run the respective scripts for testing:
+   - For `SAM2ImagePredictor`: `python sam2_img_debug.py`
+   - For `SAM2VideoPredictor`: `python sam2_video_debug.py`
+3. Check the output files in the `display` and `display_video` directories.
 
-Then SAM-2-online can be used in a few lines as follows for image and video and **camera** prediction.
+## Conclusion
 
-### Camera prediction
+The `SAM2ImagePredictor` is not capable of tracking the prompts given in the first image, whereas the `SAM2VideoPredictor` can effectively track the point annotations given in the first frame.
 
-```python
-import torch
-from sam2.build_sam import build_sam2_camera_predictor
-
-checkpoint = "./checkpoints/sam2_hiera_large.pt"
-model_cfg = "sam2_hiera_l.yaml"
-predictor = build_sam2_camera_predictor(model_cfg, checkpoint)
-
-cap = cv2.VideoCapture(<your video or camera >)
-
-if_init = False
-
-with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        width, height = frame.shape[:2][::-1]
-
-        if not if_init:
-            predictor.load_first_frame(frame)
-            if_init = True
-            _, out_obj_ids, out_mask_logits = predictor.add_new_prompt(<your promot >)
-
-        else:
-            out_obj_ids, out_mask_logits = predictor.track(frame)
-            ...
-```
-
-## References:
-
-- SAM2 Repository: https://github.com/facebookresearch/segment-anything-2
+For more details, please refer to the original [segment-anything-2-real-time](https://github.com/Gy920/segment-anything-2-real-time.git) repository.
